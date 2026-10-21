@@ -30,6 +30,11 @@
   li { margin-bottom: 6px; }
   .katex { direction: ltr; unicode-bidi: isolate; font-size: 1.05em; }
   .katex-display { margin: 10px 0; overflow-x: auto; overflow-y: hidden; }
+  .cambria math { font-family: 'Cambria Math', serif; font-size: 1.12em; }
+  .cambria .katex { line-height: normal; }
+  .cambria math[display="block"] { font-size: 1.25em; margin: 0.45em 0; padding: 0.2em 0; }
+  .cambria .opt math[display="block"] { margin: 0; }
+  .cambria .katex-display math { font-size: 1.2em; }
   .fig { text-align: center; margin: 12px 0; }
   .fig img { max-width: 100%; height: auto; }
   .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -39,6 +44,8 @@
   .btn.primary:disabled { background: #9db5d3; border-color: #9db5d3; cursor: default; }
   .btn.ghost { background: transparent; }
   .tools { display: flex; gap: 8px; flex-wrap: wrap; }
+  a.btn { text-decoration: none; display: inline-block; }
+  .pdf { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--muted); }
   .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
   .meta { color: var(--muted); font-size: .95rem; }
   .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 16px; }
@@ -96,6 +103,7 @@
 <script>
 const LETTERS = ['א', 'ב', 'ג', 'ד'];
 const DUNNO = 4;
+const NEED = { 1: 10, 2: 11 };   // correct answers needed in part A (math) and part B (physics)
 const PARTS = { 1: "חלק א' – מתמטיקה", 2: "חלק ב' – פיסיקה בסיסית" };
 const Q = window.QUIZ.questions;
 const STORE = 'placement-quiz-v1';
@@ -113,9 +121,20 @@ function load() {
 }
 function save() { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch (e) {} }
 
+// Formulas are drawn in Cambria Math (the font of the figures) when the computer has it: KaTeX then
+// outputs MathML and the browser sets it in that font. Otherwise KaTeX's own fonts are used.
+const HAS_CAMBRIA = (() => {
+  try {
+    const c = document.createElement('canvas').getContext('2d'), s = 'mmmmmmmmmmlli1234567890';
+    c.font = '40px monospace'; const w0 = c.measureText(s).width;
+    c.font = '40px "Cambria Math", monospace'; return c.measureText(s).width !== w0;
+  } catch (e) { return false; }
+})();
+if (HAS_CAMBRIA) document.documentElement.classList.add('cambria');
 function math(el) {
   if (window.renderMathInElement) {
-    renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
+    renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+                              throwOnError: false, output: HAS_CAMBRIA ? 'mathml' : 'htmlAndMathml' });
   }
 }
 function blocks(list) {
@@ -144,10 +163,12 @@ function intro() {
       <li><b>חלק א'</b> (שאלות 1–${nA}): מתמטיקה. <b>חלק ב'</b> (שאלות ${nA + 1}–${Q.length}): פיסיקה בסיסית.</li>
       <li>מותר להשתמש במחשבון. ודאו שהמחשבון מכוון למעלות (DEG) ולא לרדיאנים (RAD).</li>
       <li>דף נוסחאות קצר זמין בכל שלב, בכפתור "דף נוסחאות".</li>
-      <li>זמן מומלץ: כ- 80 דקות.</li>
+      <li>זמן מומלץ: כשעה.</li>
       <li>אם אינכם יודעים את התשובה לשאלה, בחרו "לא יודע/ת". אל תנחשו – ניחוש עלול לתת לכם תמונה לא נכונה של הידע שלכם.</li>
       <li>בסוף המבחן תקבלו את הציון בכל חלק, המלצה, והסבר לכל שאלה.</li>
     </ul>
+    <p class="pdf">מעדיפים לפתור על דף? אפשר להוריד את המבחן כקובץ PDF:
+      <a class="btn ghost" href="placement-test.pdf" target="_blank" rel="noopener">המבחן כקובץ PDF</a></p>
     <div class="nav">
       <span class="tools">
         <button class="btn ghost" onclick="openFormula()">דף נוסחאות</button>
@@ -192,16 +213,15 @@ function go(d) {
 function tally() {
   const r = { 1: { c: 0, n: 0 }, 2: { c: 0, n: 0 } };
   Q.forEach((q, i) => { r[q.part].n++; if (st.ans[i] === q.k) r[q.part].c++; });
-  for (const p of [1, 2]) { r[p].need = Math.round(0.75 * r[p].n); r[p].ok = r[p].c >= r[p].need; }
+  for (const p of [1, 2]) { r[p].need = NEED[p]; r[p].ok = r[p].c >= r[p].need; }
   return r;
 }
+// recommendation: physics decides about the workshop; math only adds "review first"
+function recCode(r) { return !r[2].ok ? 'workshop' : (r[1].ok ? 'ready' : 'math'); }
 function recText(r) {
-  if (r[1].ok && r[2].ok) return 'כנראה אפשר להתחיל ישירות את יסודות הפיסיקה.';
-  const t = [];
-  if (!r[2].ok) t.push('מומלץ ללמוד את סדנת ההכנה בפיסיקה.');
-  if (!r[1].ok) t.push(r[2].ok ? 'מומלץ ללמוד את סדנת ההכנה, ובמקביל לחזור על הנושאים המתמטיים שבהם טעיתם (אלגברה, חזקות וטריגונומטריה הם הבסיס של הקורס).'
-                               : 'כדאי גם לחזור על הנושאים המתמטיים שבהם טעיתם (אלגברה, חזקות וטריגונומטריה הם הבסיס של הקורס).');
-  return t.join(' ');
+  return { ready: 'אפשר להירשם ישירות ליסודות הפיסיקה.',
+           math: 'אפשר להירשם ליסודות הפיסיקה, אבל לפני כן מומלץ לחזור על הנושאים המתמטיים שבהם טעיתם.',
+           workshop: 'מומלץ להירשם לסדנת ההכנה בפיסיקה.' }[recCode(r)];
 }
 
 function finish() {
@@ -215,7 +235,7 @@ function report(r) {
   if (!url) return;
   const body = JSON.stringify({
     sid: st.sid, started: new Date(st.t0).toISOString(), minutes: Math.round((st.t1 - st.t0) / 600) / 100,
-    scoreA: r[1].c, nA: r[1].n, scoreB: r[2].c, nB: r[2].n, rec: (r[1].ok && r[2].ok) ? 'ready' : (!r[2].ok ? 'workshop' : 'math'),
+    scoreA: r[1].c, nA: r[1].n, scoreB: r[2].c, nB: r[2].n, rec: recCode(r),
     answers: st.ans.map(a => a === DUNNO ? '?' : (a === null ? '-' : LETTERS[a])).join(''),
     key: Q.map(q => LETTERS[q.k]).join('')
   });
@@ -241,7 +261,7 @@ function results() {
     <h1>התוצאה שלך</h1>
     <div class="scores">${card(1, "חלק א' – מתמטיקה")}${card(2, "חלק ב' – פיסיקה")}</div>
     <div class="rec">${recText(r)}</div>
-    <p class="meta">"לא יודע/ת" נחשבת כתשובה לא נכונה. הסף בכל חלק הוא כ- 75% תשובות נכונות.</p>
+    <p class="meta">"לא יודע/ת" נחשבת כתשובה לא נכונה.</p>
     <h2>הסברים</h2>
     <label class="toggle"><input type="checkbox" ${onlyWrong ? 'checked' : ''} onchange="st.onlyWrong=this.checked;render()"> הצג רק שאלות שלא עניתי עליהן נכון</label>
     ${rev || '<p>עניתם נכון על כל השאלות!</p>'}

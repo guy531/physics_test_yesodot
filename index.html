@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מבחן התאמה – סדנת הכנה בפיסיקה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="config.js"></script>
+<script src="quiz-data.js"></script>
+<style>
+  :root {
+    --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
+    --accent: #1f5fa8; --accent-soft: #e6eef8; --good: #1d7a46; --good-soft: #e3f3ea;
+    --bad: #b3261e; --bad-soft: #fbe7e5; --warn-soft: #f3efe2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font-family: 'Assistant', 'Segoe UI', Arial, sans-serif; font-size: 19px; line-height: 1.6; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 16px 16px 48px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 18px; }
+  h1 { font-size: 1.45rem; margin: 0 0 12px; line-height: 1.3; }
+  h2 { font-size: 1.15rem; margin: 22px 0 8px; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-inline-start: 22px; }
+  li { margin-bottom: 6px; }
+  .katex { direction: ltr; unicode-bidi: isolate; font-size: 1.05em; }
+  .katex-display { margin: 10px 0; overflow-x: auto; overflow-y: hidden; }
+  .fig { text-align: center; margin: 12px 0; }
+  .fig img { max-width: 100%; height: auto; }
+  .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+         border-radius: 10px; padding: 9px 18px; cursor: pointer; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .btn.primary:disabled { background: #9db5d3; border-color: #9db5d3; cursor: default; }
+  .btn.ghost { background: transparent; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .meta { color: var(--muted); font-size: .95rem; }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 16px; }
+  .bar > div { height: 100%; background: var(--accent); transition: width .2s; }
+  .qnum { font-weight: 700; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 10px; }
+  .opts.long { grid-template-columns: 1fr; }
+  .opt { display: flex; align-items: flex-start; gap: 10px; text-align: right; font: inherit; color: inherit;
+         background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 14px;
+         cursor: pointer; min-height: 52px; }
+  .opt.center { align-items: center; }
+  .opt:hover { border-color: var(--accent); }
+  .opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .opt .let { font-weight: 700; min-width: 1.4em; }
+  .opt .txt { flex: 1; min-width: 0; }
+  .opt .katex-display { margin: 0; }
+  .dunno { width: 100%; justify-content: center; color: var(--muted); }
+  .nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
+  .modal { position: fixed; inset: 0; background: rgba(20,20,20,.45); display: none; align-items: flex-start;
+           justify-content: center; padding: 24px 12px; overflow-y: auto; z-index: 10; }
+  .modal.open { display: flex; }
+  .modal .card { max-width: 640px; width: 100%; }
+  .scores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .score { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .score .big { font-size: 1.7rem; font-weight: 700; }
+  .score.ok { background: var(--good-soft); border-color: #b9dcc7; }
+  .score.low { background: var(--bad-soft); border-color: #efc3bf; }
+  .rec { background: var(--warn-soft); border-radius: 12px; padding: 12px 16px; margin: 6px 0 4px; }
+  .rev { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
+  .tag { display: inline-block; font-size: .85rem; font-weight: 700; border-radius: 6px; padding: 1px 8px; margin-inline-start: 8px; }
+  .tag.ok { background: var(--good-soft); color: var(--good); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  .tag.dk { background: var(--line); color: var(--muted); }
+  .ans { margin: 8px 0; }
+  .sol { background: #fafaf8; border-inline-start: 3px solid var(--accent); padding: 8px 12px; margin-top: 8px; border-radius: 6px; }
+  .toggle { display: flex; align-items: center; gap: 8px; margin: 10px 0; color: var(--muted); }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    .card { padding: 16px 14px 14px; }
+    .opts { grid-template-columns: 1fr; }
+    .scores { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap"><div id="app" class="card"></div></div>
+
+<div id="fmodal" class="modal" onclick="if(event.target===this)closeFormula()">
+  <div class="card">
+    <div class="top"><h1 style="margin:0">דף נוסחאות</h1><button class="btn" onclick="closeFormula()">סגירה</button></div>
+    <div id="fbody"></div>
+  </div>
+</div>
+
+<script>
+const LETTERS = ['א', 'ב', 'ג', 'ד'];
+const DUNNO = 4;
+const PARTS = { 1: "חלק א' – מתמטיקה", 2: "חלק ב' – פיסיקה בסיסית" };
+const Q = window.QUIZ.questions;
+const STORE = 'placement-quiz-v1';
+const app = document.getElementById('app');
+
+let st = load() || fresh();
+
+function fresh() {
+  return { screen: 'intro', i: 0, ans: Q.map(() => null), sid: Math.random().toString(36).slice(2, 10),
+           t0: null, t1: null, sent: false };
+}
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && s.ans && s.ans.length === Q.length) return s; } catch (e) {}
+  return null;
+}
+function save() { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch (e) {} }
+
+function math(el) {
+  if (window.renderMathInElement) {
+    renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
+  }
+}
+function blocks(list) {
+  return list.map(b => b.t === 'img' ? `<div class="fig"><img src="${b.src}" alt=""></div>`
+                     : b.t === 'e' ? `<div>${b.h}</div>` : `<p>${b.h}</p>`).join('');
+}
+function isLong(q) {
+  return q.opts.some(o => !o.d && o.h.replace(/\$[^$]*\$/g, 'xxxx').replace(/<[^>]+>/g, '').length > 30);
+}
+
+function render() {
+  save();
+  if (st.screen === 'intro') return intro();
+  if (st.screen === 'q') return question();
+  return results();
+}
+
+function intro() {
+  const nA = Q.filter(q => q.part === 1).length, nB = Q.length - nA;
+  app.innerHTML = `
+    <h1>מבחן התאמה – האם כדאי לי ללמוד את סדנת ההכנה בפיסיקה (91463)?</h1>
+    <p>המבחן נועד לעזור לכם להחליט אם כדאי לכם ללמוד את <b>סדנת ההכנה בפיסיקה</b> לפני הקורס <b>יסודות הפיסיקה א (20113)</b> או הקורס <b>יסודות הפיסיקה (20125)</b>. המבחן אינו משפיע על לימודיכם. כדי שהתוצאה תשקף את הידע שלכם, פתרו אותו לבד, בלי עזרה ובלי לחפש תשובות.</p>
+    <h2>הוראות</h2>
+    <ul>
+      <li>במבחן ${Q.length} שאלות אמריקאיות. לכל שאלה יש תשובה נכונה אחת בלבד.</li>
+      <li><b>חלק א'</b> (שאלות 1–${nA}): מתמטיקה. <b>חלק ב'</b> (שאלות ${nA + 1}–${Q.length}): פיסיקה בסיסית.</li>
+      <li>מותר להשתמש במחשבון. ודאו שהמחשבון מכוון למעלות (DEG) ולא לרדיאנים (RAD).</li>
+      <li>דף נוסחאות קצר זמין בכל שלב, בכפתור "דף נוסחאות".</li>
+      <li>זמן מומלץ: כ- 80 דקות.</li>
+      <li>אם אינכם יודעים את התשובה לשאלה, בחרו "לא יודע/ת". אל תנחשו – ניחוש עלול לתת לכם תמונה לא נכונה של הידע שלכם.</li>
+      <li>בסוף המבחן תקבלו את הציון בכל חלק, המלצה, והסבר לכל שאלה.</li>
+    </ul>
+    <div class="nav">
+      <button class="btn ghost" onclick="openFormula()">דף נוסחאות</button>
+      <button class="btn primary" onclick="start()">${st.ans.some(a => a !== null) ? 'המשך מהמקום שהפסקתי' : 'התחל'}</button>
+    </div>`;
+}
+function start() { if (!st.t0) st.t0 = Date.now(); st.screen = 'q'; render(); window.scrollTo(0, 0); }
+
+function question() {
+  const q = Q[st.i], a = st.ans[st.i], long = isLong(q);
+  const opts = q.opts.map((o, k) => `
+      <button class="opt${a === k ? ' sel' : ''}${o.d ? ' center' : ''}" onclick="pick(${k})">
+        <span class="let">${LETTERS[k]}.</span><span class="txt">${o.h}</span></button>`).join('');
+  app.innerHTML = `
+    <div class="top">
+      <span class="meta">${PARTS[q.part]} · שאלה ${st.i + 1} מתוך ${Q.length}</span>
+      <button class="btn ghost" onclick="openFormula()">דף נוסחאות</button>
+    </div>
+    <div class="bar"><div style="width:${100 * (st.i + 1) / Q.length}%"></div></div>
+    ${blocks(q.pre)}
+    <p><span class="qnum">${q.n}.</span> ${q.stem}</p>
+    ${blocks(q.body)}
+    <div class="opts${long ? ' long' : ''}">${opts}</div>
+    <button class="opt dunno${a === DUNNO ? ' sel' : ''}" onclick="pick(${DUNNO})">לא יודע/ת</button>
+    <div class="nav">
+      <button class="btn" onclick="go(-1)" ${st.i === 0 ? 'disabled' : ''}>הקודם</button>
+      <button class="btn primary" onclick="go(1)" ${a === null ? 'disabled' : ''}>${st.i === Q.length - 1 ? 'סיום' : 'הבא'}</button>
+    </div>`;
+  math(app);
+}
+function pick(k) { st.ans[st.i] = k; render(); }
+function go(d) {
+  if (d > 0 && st.i === Q.length - 1) { finish(); return; }
+  st.i = Math.max(0, Math.min(Q.length - 1, st.i + d)); render(); window.scrollTo(0, 0);
+}
+
+function tally() {
+  const r = { 1: { c: 0, n: 0 }, 2: { c: 0, n: 0 } };
+  Q.forEach((q, i) => { r[q.part].n++; if (st.ans[i] === q.k) r[q.part].c++; });
+  for (const p of [1, 2]) { r[p].need = Math.round(0.75 * r[p].n); r[p].ok = r[p].c >= r[p].need; }
+  return r;
+}
+function recText(r) {
+  if (r[1].ok && r[2].ok) return 'כנראה אפשר להתחיל ישירות את יסודות הפיסיקה.';
+  const t = [];
+  if (!r[2].ok) t.push('מומלץ ללמוד את סדנת ההכנה בפיסיקה.');
+  if (!r[1].ok) t.push(r[2].ok ? 'מומלץ ללמוד את סדנת ההכנה, ובמקביל לחזור על הנושאים המתמטיים שבהם טעיתם (אלגברה, חזקות וטריגונומטריה הם הבסיס של הקורס).'
+                               : 'כדאי גם לחזור על הנושאים המתמטיים שבהם טעיתם (אלגברה, חזקות וטריגונומטריה הם הבסיס של הקורס).');
+  return t.join(' ');
+}
+
+function finish() {
+  st.t1 = Date.now(); st.screen = 'res';
+  const r = tally();
+  if (!st.sent) { report(r); st.sent = true; }
+  render(); window.scrollTo(0, 0);
+}
+function report(r) {
+  const url = (window.QUIZ_CONFIG || {}).collectUrl;
+  if (!url) return;
+  const body = JSON.stringify({
+    sid: st.sid, started: new Date(st.t0).toISOString(), minutes: Math.round((st.t1 - st.t0) / 600) / 100,
+    scoreA: r[1].c, nA: r[1].n, scoreB: r[2].c, nB: r[2].n, rec: (r[1].ok && r[2].ok) ? 'ready' : (!r[2].ok ? 'workshop' : 'math'),
+    answers: st.ans.map(a => a === DUNNO ? '?' : (a === null ? '-' : LETTERS[a])).join(''),
+    key: Q.map(q => LETTERS[q.k]).join('')
+  });
+  try { fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body }); } catch (e) {}
+}
+
+function results() {
+  const r = tally();
+  const card = (p, name) => `<div class="score ${r[p].ok ? 'ok' : 'low'}"><div>${name}</div>
+      <div class="big">${r[p].c} / ${r[p].n}</div><div class="meta">${r[p].ok ? 'עברתם את הסף' : 'מתחת לסף'} (${r[p].need} תשובות נכונות)</div></div>`;
+  const onlyWrong = st.onlyWrong !== false;
+  const rev = Q.map((q, i) => {
+    const a = st.ans[i], ok = a === q.k;
+    if (onlyWrong && ok) return '';
+    const tag = ok ? '<span class="tag ok">נכון</span>' : (a === DUNNO ? '<span class="tag dk">לא ידעתי</span>' : '<span class="tag bad">לא נכון</span>');
+    const yours = a === DUNNO || a === null ? 'לא יודע/ת' : `${LETTERS[a]}. ${q.opts[a].h}`;
+    return `<div class="rev">${blocks(q.pre)}<p><span class="qnum">${q.n}.</span> ${q.stem} ${tag}</p>${blocks(q.body)}
+      <div class="ans">התשובה שלך: ${yours}</div>
+      <div class="ans"><b>התשובה הנכונה: ${LETTERS[q.k]}. ${q.opts[q.k].h}</b></div>
+      <div class="sol">${blocks(q.sol)}</div></div>`;
+  }).join('');
+  app.innerHTML = `
+    <h1>התוצאה שלך</h1>
+    <div class="scores">${card(1, "חלק א' – מתמטיקה")}${card(2, "חלק ב' – פיסיקה")}</div>
+    <div class="rec">${recText(r)}</div>
+    <p class="meta">"לא יודע/ת" נחשבת כתשובה לא נכונה. הסף בכל חלק הוא כ- 75% תשובות נכונות.</p>
+    <h2>הסברים</h2>
+    <label class="toggle"><input type="checkbox" ${onlyWrong ? 'checked' : ''} onchange="st.onlyWrong=this.checked;render()"> הצג רק שאלות שלא עניתי עליהן נכון</label>
+    ${rev || '<p>עניתם נכון על כל השאלות!</p>'}
+    <div class="nav"><button class="btn ghost" onclick="openFormula()">דף נוסחאות</button>
+      <button class="btn" onclick="restart()">להתחיל מחדש</button></div>`;
+  math(app);
+}
+function restart() { if (confirm('למחוק את התשובות ולהתחיל מחדש?')) { st = fresh(); render(); window.scrollTo(0, 0); } }
+
+function openFormula() {
+  const fb = document.getElementById('fbody');
+  if (!fb.dataset.done) { fb.innerHTML = blocks(window.QUIZ.formula); math(fb); fb.dataset.done = '1'; }
+  document.getElementById('fmodal').classList.add('open');
+}
+function closeFormula() { document.getElementById('fmodal').classList.remove('open'); }
+
+window.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>

@@ -225,7 +225,7 @@ function report(r) {
 function results() {
   const r = tally();
   const card = (p, name) => `<div class="score ${r[p].ok ? 'ok' : 'low'}"><div>${name}</div>
-      <div class="big">${r[p].c} / ${r[p].n}</div><div class="meta">${r[p].ok ? 'עברתם את הסף' : 'מתחת לסף'} (${r[p].need} תשובות נכונות)</div></div>`;
+      <div class="big"><bdi dir="ltr">${r[p].c} / ${r[p].n}</bdi></div><div class="meta">${r[p].ok ? 'עברתם את הסף' : 'מתחת לסף'} (${r[p].need} תשובות נכונות)</div></div>`;
   const onlyWrong = st.onlyWrong !== false;
   const rev = Q.map((q, i) => {
     const a = st.ans[i], ok = a === q.k;

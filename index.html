@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610212141"></script>
-<script src="quiz-data.js?v=202610212141"></script>
+<script src="config.js?v=202610212146"></script>
+<script src="quiz-data.js?v=202610212146"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -67,6 +67,17 @@
   .modal { position: fixed; inset: 0; background: rgba(20,20,20,.45); display: none; align-items: flex-start;
            justify-content: center; padding: 24px 12px; overflow-y: auto; z-index: 10; }
   .modal.open { display: flex; }
+  /* formula sheet: compact grid, fits one screen */
+  #fmodal { padding: 12px; align-items: center; }
+  #fmodal .card { max-width: 900px; padding: 14px 18px; }
+  #fmodal .top { margin-bottom: 6px; }
+  .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fcell { border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; }
+  .fcell.wide { grid-column: 1 / -1; }
+  .fcell p { margin: 0 0 2px; }
+  .fcell .katex-display { margin: 0.2em 0; }
+  .cambria .fcell math[display="block"] { margin: 0.1em 0; padding: 0.1em 0; font-size: 1.15em; }
+  @media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; gap: 6px; } #fmodal .card { padding: 10px 12px; } }
   .modal .card { max-width: 640px; width: 100%; }
   .scores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
   .score { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
@@ -272,9 +283,22 @@ function results() {
 // back to the instructions page with all answers erased
 function restart() { if (confirm('למחוק את כל התשובות ולחזור לעמוד ההוראות?')) { st = fresh(); render(); window.scrollTo(0, 0); } }
 
+function formulaGrid(list) {
+  // a bold label paragraph starts a cell; the equations after it go into the same cell
+  const cells = [];
+  list.forEach(b => { if (b.t !== "e" || !cells.length) cells.push([]); cells[cells.length - 1].push(b); });
+  // two consecutive one-line cells (no displayed equation, e.g. Newton + gravity) share a cell
+  for (let i = cells.length - 1; i > 0; i--)
+    if (cells[i].length === 1 && cells[i - 1].length === 1 && i !== cells.length - 1 && cells[i - 1].length + cells[i].length <= 2
+        && (i < 2 || cells[i - 2].length !== 1)) { cells[i - 1].push(...cells[i]); cells.splice(i, 1); }
+  return "<div class=\"fgrid\">" + cells.map((c, i) => {
+    const wide = (i === cells.length - 1 && cells.length % 2 === 1) ? " wide" : "";
+    return "<div class=\"fcell" + wide + "\">" + blocks(c) + "</div>";
+  }).join("") + "</div>";
+}
 function openFormula() {
   const fb = document.getElementById('fbody');
-  if (!fb.dataset.done) { fb.innerHTML = blocks(window.QUIZ.formula); math(fb); fb.dataset.done = '1'; }
+  if (!fb.dataset.done) { fb.innerHTML = formulaGrid(window.QUIZ.formula); math(fb); fb.dataset.done = '1'; }
   document.getElementById('fmodal').classList.add('open');
 }
 function closeFormula() { document.getElementById('fmodal').classList.remove('open'); }

@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221131"></script>
-<script src="quiz-data.js?v=202610221131"></script>
+<script src="config.js?v=202610221141"></script>
+<script src="quiz-data.js?v=202610221141"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -35,7 +35,7 @@
   .cambria math[display="block"] { font-size: 1.25em; margin: 0.45em 0; padding: 0.2em 0; }
   .cambria .opt math[display="block"] { margin: 0; }
   .cambria .katex-display math { font-size: 1.2em; }
-  .logo { text-align: center; margin: 0 0 18px; }
+  .logo { text-align: right; margin: 0 0 18px; }
   .qtop { flex-wrap: nowrap; }
   .qtop .meta { flex: 1 1 0; min-width: 0; }
   .qtop .tools { flex: 1 1 0; justify-content: flex-end; flex-wrap: nowrap; white-space: nowrap; }
@@ -189,7 +189,7 @@ function render() {
 function intro() {
   const nA = Q.filter(q => q.part === 1).length, nB = Q.length - nA;
   app.innerHTML = `
-    <div class="logo" style="text-align: right"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"></div>
+    <div class="logo"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"></div>
     <h1>מבחן התאמה – האם כדאי לי ללמוד את סדנת ההכנה בפיסיקה (91463)?</h1>
     <p>המבחן נועד לעזור לכם להחליט אם כדאי לכם ללמוד את <b>סדנת ההכנה בפיסיקה</b> לפני הקורס <b>יסודות הפיסיקה א (20113)</b> או הקורס <b>יסודות הפיסיקה (20125)</b>. המבחן אינו משפיע על לימודיכם. כדי שהתוצאה תשקף את הידע שלכם, פתרו אותו לבד, בלי עזרה ובלי לחפש תשובות.</p>
     <h2>הוראות</h2>
@@ -197,10 +197,10 @@ function intro() {
       <li>במבחן ${Q.length} שאלות אמריקאיות. לכל שאלה יש תשובה נכונה אחת בלבד.</li>
       <li><b>חלק א'</b> (שאלות 1–${nA}): מתמטיקה. <b>חלק ב'</b> (שאלות ${nA + 1}–${Q.length}): פיסיקה בסיסית.</li>
       <li>מותר להשתמש במחשבון. ודאו שהמחשבון מכוון למעלות (DEG) ולא לרדיאנים (RAD).</li>
-      <li>דף נוסחאות קצר זמין בכל שלב, בכפתור "דף נוסחאות".</li>
+      <li>דף נוסחאות זמין בכל שלב, בכפתור "דף נוסחאות".</li>
       <li>זמן מומלץ: כשעה.</li>
       <li>אם אינכם יודעים את התשובה לשאלה, בחרו "לא יודע/ת". אל תנחשו – ניחוש עלול לתת לכם תמונה לא נכונה של הידע שלכם.</li>
-      <li>בסוף המבחן תקבלו את הציון בכל חלק, המלצה, והסבר לכל שאלה.</li>
+      <li>בסוף המבחן תקבלו את הציון בכל חלק, המלצה לאיזה קורס להירשם, והסבר לכל שאלה.</li>
     </ul>
     <p class="pdf">מעדיפים לפתור על דף? אפשר להוריד את המבחן כקובץ PDF:
       <a class="btn ghost" href="placement-test.pdf" target="_blank" rel="noopener">המבחן כקובץ PDF</a></p>
@@ -212,7 +212,12 @@ function intro() {
       <button class="btn primary" onclick="start()">${st.ans.some(a => a !== null) ? 'המשך מהמקום שהפסקתי' : 'התחל'}</button>
     </div>`;
 }
-function start() { if (!st.t0) st.t0 = Date.now(); st.screen = 'q'; render(); window.scrollTo(0, 0); }
+function start() {
+  if (!st.t0) st.t0 = Date.now();
+  const next = st.ans.indexOf(null);              // continue at the first question not answered yet
+  if (st.ans.some(x => x !== null)) st.i = next >= 0 ? next : Q.length - 1;
+  st.screen = 'q'; render(); window.scrollTo(0, 0);
+}
 
 function question() {
   const q = Q[st.i], a = st.ans[st.i], long = isLong(q);

@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610212146"></script>
-<script src="quiz-data.js?v=202610212146"></script>
+<script src="config.js?v=202610220901"></script>
+<script src="quiz-data.js?v=202610220901"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -28,7 +28,7 @@
   p { margin: 0 0 12px; }
   ul { margin: 0 0 12px; padding-inline-start: 22px; }
   li { margin-bottom: 6px; }
-  .katex { direction: ltr; unicode-bidi: isolate; font-size: 1.05em; }
+  .katex { direction: ltr; unicode-bidi: isolate; font-size: 1.05em; white-space: nowrap; }   /* never break a formula across lines */
   .katex-display { margin: 10px 0; overflow-x: auto; overflow-y: hidden; }
   .cambria math { font-family: 'Cambria Math', serif; font-size: 1.12em; }
   .cambria .katex { line-height: normal; }
@@ -78,6 +78,17 @@
   .fcell .katex-display { margin: 0.2em 0; }
   .cambria .fcell math[display="block"] { margin: 0.1em 0; padding: 0.1em 0; font-size: 1.15em; }
   @media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; gap: 6px; } #fmodal .card { padding: 10px 12px; } }
+  /* wide screens: the formula sheet is a side panel on the right, next to the question (no overlay) */
+  @media (min-width: 1100px) {
+    #fmodal { inset: 0 0 0 auto; width: 430px; padding: 0; background: transparent; align-items: stretch; overflow: hidden; }
+    #fmodal .card { max-width: none; height: 100vh; overflow-y: auto; border-radius: 0; border-width: 0 0 0 1px;
+                    box-shadow: -4px 0 18px rgba(0,0,0,.08); padding: 14px 16px; }
+    #fmodal .fgrid { grid-template-columns: 1fr; gap: 5px; }
+    #fmodal .fcell { padding: 3px 10px; }
+    .cambria #fmodal .fcell math[display="block"] { font-size: 1.08em; margin: 0; padding: 0.05em 0; }
+    #fmodal .fcell .katex-display { margin: 0.05em 0; }
+    body.fopen { padding-right: 430px; }
+  }
   .modal .card { max-width: 640px; width: 100%; }
   .scores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
   .score { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
@@ -141,11 +152,11 @@ const HAS_CAMBRIA = (() => {
     c.font = '40px "Cambria Math", monospace'; return c.measureText(s).width !== w0;
   } catch (e) { return false; }
 })();
-if (HAS_CAMBRIA) document.documentElement.classList.add('cambria');
+if (HAS_CAMBRIA && !/[?&]katex/.test(location.search)) document.documentElement.classList.add('cambria');
 function math(el) {
   if (window.renderMathInElement) {
     renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
-                              throwOnError: false, output: HAS_CAMBRIA ? 'mathml' : 'htmlAndMathml' });
+                              throwOnError: false, output: document.documentElement.classList.contains('cambria') ? 'mathml' : 'htmlAndMathml' });
   }
 }
 function blocks(list) {
@@ -299,9 +310,9 @@ function formulaGrid(list) {
 function openFormula() {
   const fb = document.getElementById('fbody');
   if (!fb.dataset.done) { fb.innerHTML = formulaGrid(window.QUIZ.formula); math(fb); fb.dataset.done = '1'; }
-  document.getElementById('fmodal').classList.add('open');
+  document.getElementById('fmodal').classList.add('open'); document.body.classList.add('fopen');
 }
-function closeFormula() { document.getElementById('fmodal').classList.remove('open'); }
+function closeFormula() { document.getElementById('fmodal').classList.remove('open'); document.body.classList.remove('fopen'); }
 
 window.addEventListener('DOMContentLoaded', render);
 </script>

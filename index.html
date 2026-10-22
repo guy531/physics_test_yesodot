@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221422"></script>
-<script src="quiz-data.js?v=202610221422"></script>
+<script src="config.js?v=202610221805"></script>
+<script src="quiz-data.js?v=202610221805"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -63,7 +63,9 @@
          background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 14px;
          cursor: pointer; min-height: 52px; }
   .opt.center { align-items: center; }
-  .opt:hover { border-color: var(--accent); }
+  /* hover highlight only with a real mouse (phones keep "hover" on the tapped spot), and not right after the
+     question changed under a still cursor - otherwise an option of the new question looks already chosen */
+  @media (hover: hover) and (pointer: fine) { #app:not(.still) .opt:hover { border-color: var(--accent); } }
   .opt.sel { border-color: var(--accent); background: var(--accent-soft); }
   .opt .let { font-weight: 700; min-width: 1.4em; }
   .opt .txt { flex: 1; min-width: 0; }
@@ -286,7 +288,11 @@ function pick(k) {
   st.ans[i] = k; render();
   // first answer to this question: move on to the next one at once (not on the last question, and not when
   // the student changes an answer they had already given)
-  if (first && i < Q.length - 1) go(1);   // no delay
+  if (first && i < Q.length - 1) {   // no delay
+    go(1);
+    app.classList.add('still');      // no hover highlight until the mouse moves
+    window.addEventListener('mousemove', () => app.classList.remove('still'), { once: true });
+  }
 }
 function go(d) {
   if (d < 0 && st.i === 0) { st.screen = 'intro'; render(); window.scrollTo(0, 0); return; }   // back to the instructions; answers are kept
@@ -366,6 +372,7 @@ function printSummary() {
       const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
       const w = 210, h = Math.min(297, w * canvas.height / canvas.width);
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h, undefined, 'FAST');
+      // clickable link over the site address
       // clickable link over the site address
       const k = w / el.offsetWidth, box = el.getBoundingClientRect(), a = document.getElementById('ps-link').getBoundingClientRect();
       pdf.link((a.left - box.left) * k, (a.top - box.top) * k, a.width * k, a.height * k, { url: document.getElementById('ps-link').href });

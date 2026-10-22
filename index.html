@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221314"></script>
-<script src="quiz-data.js?v=202610221314"></script>
+<script src="config.js?v=202610221422"></script>
+<script src="quiz-data.js?v=202610221422"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -40,7 +40,7 @@
   .qtop .meta { flex: 1 1 0; min-width: 0; }
   .qtop .tools { flex: 1 1 0; justify-content: flex-end; flex-wrap: nowrap; white-space: nowrap; }
   @media (max-width: 560px) { .qtop { flex-wrap: wrap; } .qtop .meta { flex: 1 1 100%; } .qtop .tools { flex: none; } }
-  .logo img { display: block; width: 168px; max-width: 70%; height: auto; }
+  .logo img { display: block; width: 144px; max-width: 70%; height: auto; }
   .fig { text-align: center; margin: 12px 0; }
   .fig img { max-width: 100%; height: auto; }
   .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -134,7 +134,7 @@
     #print * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
   .ps-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #253677; padding-bottom: 8px; }
-  .ps-head img { height: 32px; }
+  .ps-head img { height: 28px; }
   .ps-head .ps-date { color: #555; font-size: .9em; text-align: left; }
   .ps-title { font-size: 1.45em; font-weight: 700; margin: 14px 0 2px; color: #253677; }
   .ps-sub { color: #555; margin: 0 0 14px; }
@@ -284,9 +284,9 @@ function question() {
 function pick(k) {
   const first = st.ans[st.i] === null, i = st.i;
   st.ans[i] = k; render();
-  // first answer to this question: move on by itself after a moment (not on the last question, and not when
+  // first answer to this question: move on to the next one at once (not on the last question, and not when
   // the student changes an answer they had already given)
-  if (first && i < Q.length - 1) setTimeout(() => { if (st.screen === 'q' && st.i === i) go(1); }, 175);
+  if (first && i < Q.length - 1) go(1);   // no delay
 }
 function go(d) {
   if (d < 0 && st.i === 0) { st.screen = 'intro'; render(); window.scrollTo(0, 0); return; }   // back to the instructions; answers are kept
@@ -384,7 +384,7 @@ function results() {
   const r = tally();
   const card = (p, name) => `<div class="score ${r[p].ok ? 'ok' : 'low'}"><div>${name}</div>
       <div class="big"><bdi dir="ltr">${r[p].c} / ${r[p].n}</bdi></div><div class="meta">${r[p].ok ? 'עברתם את הסף' : 'מתחת לסף'} (${r[p].need} תשובות נכונות)</div></div>`;
-  const onlyWrong = st.onlyWrong !== false;
+  const onlyWrong = st.onlyWrong === true;   // default: show all the questions
   const rev = Q.map((q, i) => {
     const a = st.ans[i], ok = a === q.k;
     if (onlyWrong && ok) return '';

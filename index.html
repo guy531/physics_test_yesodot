@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221258"></script>
-<script src="quiz-data.js?v=202610221258"></script>
+<script src="config.js?v=202610221312"></script>
+<script src="quiz-data.js?v=202610221312"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -76,6 +76,7 @@
            justify-content: center; padding: 24px 12px; overflow-y: auto; z-index: 10; }
   /* formula-sheet button: highlighted while the sheet is open; a second click closes it */
   body.fopen .fbtn { background: var(--accent); border-color: var(--accent); color: #fff; }   /* same size, so nothing moves */
+  .fbtn.inpanel { padding: 6px 14px; font-size: 1.05rem; line-height: 1.4; }   /* close button inside the sheet (phones) */
   @media (min-width: 1100px) { .fbtn.inpanel { display: none; } }
   .modal.open { display: flex; }
   /* formula sheet: compact grid, fits one screen */
@@ -167,7 +168,7 @@
 
 <div id="fmodal" class="modal" onclick="if(event.target===this)closeFormula()">
   <div class="card">
-    <div class="top"><h1 style="margin:0">דף נוסחאות</h1><button class="btn ghost fbtn inpanel" onclick="toggleFormula()">דף נוסחאות</button></div>
+    <div class="top"><h1 style="margin:0">דף נוסחאות</h1><button class="btn ghost fbtn inpanel" onclick="toggleFormula()" aria-label="סגירת דף הנוסחאות">&#x2715;</button></div>
     <div id="fbody"></div>
   </div>
 </div>

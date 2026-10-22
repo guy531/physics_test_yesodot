@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221141"></script>
-<script src="quiz-data.js?v=202610221141"></script>
+<script src="config.js?v=202610221146"></script>
+<script src="quiz-data.js?v=202610221146"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -122,9 +122,46 @@
     .opts { grid-template-columns: 1fr; }
     .scores { grid-template-columns: 1fr; }
   }
-</style>
+  /* ---- printable summary (results page > "סיכום התוצאות כ- PDF"): built on demand, shown only when printing */
+  #print { display: none; }
+  /* off-screen A4 page (794 px wide) that html2canvas photographs for the PDF */
+  #print.cap { display: block; position: fixed; top: 0; left: -12000px; width: 794px; padding: 46px 52px; background: #fff;
+               font-size: 16px; line-height: 1.4; color: #1d1d1f; }
+  @media print {
+    @page { size: A4; margin: 13mm 14mm; }
+    html, body { background: #fff; }
+    body > *:not(#print) { display: none !important; }
+    #print { display: block; font-size: 12pt; line-height: 1.4; color: #1d1d1f; }
+    #print * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  .ps-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #253677; padding-bottom: 8px; }
+  .ps-head img { height: 46px; }
+  .ps-head .ps-date { color: #555; font-size: .9em; text-align: left; }
+  .ps-title { font-size: 1.45em; font-weight: 700; margin: 14px 0 2px; color: #253677; }
+  .ps-sub { color: #555; margin: 0 0 14px; }
+  .ps-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ps-score { border: 1px solid #d9d9de; border-radius: 10px; padding: 10px 14px; }
+  .ps-score .ps-name { font-weight: 600; }
+  .ps-score .ps-big { font-size: 1.9em; font-weight: 700; line-height: 1.2; }
+  .ps-track { position: relative; height: 8px; background: #e6e6ea; border-radius: 4px; margin: 6px 0 4px; }
+  .ps-fill { height: 100%; border-radius: 4px; }
+  .ps-mark { position: absolute; top: -4px; width: 2px; height: 16px; background: #1d1d1f; }
+  .ps-score .ps-note { color: #555; font-size: .85em; }
+  .ps-ok .ps-big { color: #1e7a46; } .ps-ok .ps-fill { background: #3fa46a; }
+  .ps-low .ps-big { color: #b3261e; } .ps-low .ps-fill { background: #d9534f; }
+  .ps-rec { margin: 14px 0; padding: 10px 14px; border-radius: 10px; background: #eef1f9; border-inline-start: 4px solid #253677; }
+  .ps-rec b { color: #253677; }
+  .ps-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  .ps-tables table { width: 100%; border-collapse: collapse; font-size: .9em; }
+  .ps-tables caption { font-weight: 700; text-align: right; padding-bottom: 4px; }
+  .ps-tables th, .ps-tables td { border: 1px solid #d9d9de; padding: 1px 6px; text-align: center; }
+  .ps-tables th { background: #f1f1f4; font-weight: 600; }
+  .ps-tables tr.c td { background: #e7f4ec; } .ps-tables tr.w td { background: #fbe9e8; } .ps-tables tr.d td { background: #f4f4f6; }
+  .ps-legend { color: #555; font-size: .85em; margin-top: 8px; }
+  .ps-foot { margin-top: 14px; padding-top: 8px; border-top: 1px solid #d9d9de; color: #555; font-size: .85em; }</style>
 </head>
 <body>
+<div id="print"></div>
 <div class="wrap"><div id="app" class="card"></div></div>
 
 <div id="fmodal" class="modal" onclick="if(event.target===this)closeFormula()">
@@ -284,6 +321,57 @@ function report(r) {
   try { fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body }); } catch (e) {}
 }
 
+// printable one-page summary; the browser's print dialog saves it as PDF
+function printSummary() {
+  const r = tally(), d = new Date(st.t1 || Date.now());
+  const date = d.toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+  const score = (p, name) => `<div class="ps-score ${r[p].ok ? 'ps-ok' : 'ps-low'}"><div class="ps-name">${name}</div>
+      <div class="ps-big"><bdi dir="ltr">${r[p].c} / ${r[p].n}</bdi></div>
+      <div class="ps-track" dir="ltr"><div class="ps-fill" style="width:${100 * r[p].c / r[p].n}%"></div><div class="ps-mark" style="left:${100 * r[p].need / r[p].n}%"></div></div>
+      <div class="ps-note">${r[p].ok ? 'עברתם את הסף' : 'מתחת לסף'} – הסף הוא ${r[p].need} תשובות נכונות (הקו השחור)</div></div>`;
+  const table = (p, name) => {
+    const rows = Q.map((q, i) => ({ q, a: st.ans[i] })).filter(x => x.q.part === p).map(({ q, a }) => {
+      const cls = a === q.k ? 'c' : (a === DUNNO || a === null ? 'd' : 'w');
+      const mark = { c: '✓', w: '✗', d: '–' }[cls];
+      const yours = a === DUNNO || a === null ? 'לא יודע/ת' : LETTERS[a];
+      return `<tr class="${cls}"><td><b>${q.n}</b></td><td>${yours}</td><td>${LETTERS[q.k]}</td><td>${mark}</td></tr>`;
+    }).join('');
+    return `<table><caption>${name}</caption><tr><th>שאלה</th><th>התשובה שלך</th><th>התשובה הנכונה</th><th></th></tr>${rows}</table>`;
+  };
+  const url = location.origin + location.pathname;
+  document.getElementById('print').innerHTML = `
+    <div class="ps-head"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"><div class="ps-date">${date}</div></div>
+    <div class="ps-title">מבחן התאמה – סדנת הכנה בפיסיקה (91463)</div>
+    <p class="ps-sub">סיכום התוצאות</p>
+    <div class="ps-scores">${score(1, "חלק א' – מתמטיקה")}${score(2, "חלק ב' – פיסיקה")}</div>
+    <div class="ps-rec"><b>ההמלצה:</b> ${recText(r)}</div>
+    <div class="ps-tables">${table(1, "חלק א' – מתמטיקה")}${table(2, "חלק ב' – פיסיקה")}</div>
+    <div class="ps-legend">✓ תשובה נכונה &nbsp;·&nbsp; ✗ תשובה לא נכונה &nbsp;·&nbsp; – לא יודע/ת (נחשבת כתשובה לא נכונה)</div>
+    <div class="ps-foot">הסבר מלא לכל שאלה מופיע בעמוד התוצאות באתר המבחן: <bdi dir="ltr">${url}</bdi></div>`;
+  // draw the page with html2canvas (the browser's own rendering, so Hebrew stays right) and save it as an A4 PDF
+  const btn = document.getElementById('pdfbtn'), label = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'מכין את הקובץ...'; }
+  const el = document.getElementById('print'); el.classList.add('cap');
+  const done = () => { el.classList.remove('cap'); if (btn) { btn.disabled = false; btn.textContent = label; } };
+  loadScripts(['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+               'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'])
+    .then(() => document.fonts ? document.fonts.ready : null)
+    .then(() => html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true }))
+    .then(canvas => {
+      const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+      const w = 210, h = Math.min(297, w * canvas.height / canvas.width);
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, w, h);
+      pdf.save('סיכום מבחן התאמה - סדנת הכנה בפיסיקה.pdf');
+      done();
+    })
+    .catch(() => { done(); alert('לא הצלחנו ליצור את הקובץ. נסו שוב, או השתמשו בהדפסה (Ctrl+P) ובחרו "שמירה כ- PDF".'); });
+}
+function loadScripts(urls) {
+  return urls.reduce((pr, u) => pr.then(() => document.querySelector(`script[src="${u}"]`) ? null : new Promise((ok, bad) => {
+    const s = document.createElement('script'); s.src = u; s.onload = ok; s.onerror = bad; document.head.appendChild(s);
+  })), Promise.resolve());
+}
+
 function results() {
   const r = tally();
   const card = (p, name) => `<div class="score ${r[p].ok ? 'ok' : 'low'}"><div>${name}</div>
@@ -305,6 +393,7 @@ function results() {
     <div class="scores">${card(1, "חלק א' – מתמטיקה")}${card(2, "חלק ב' – פיסיקה")}</div>
     <div class="rec">${recText(r)}</div>
     <p class="meta">"לא יודע/ת" נחשבת כתשובה לא נכונה.</p>
+    <p><button id="pdfbtn" class="btn primary" onclick="printSummary()">הורדת סיכום התוצאות (PDF)</button></p>
     <h2>הסברים</h2>
     <label class="toggle"><input type="checkbox" ${onlyWrong ? 'checked' : ''} onchange="st.onlyWrong=this.checked;render()"> הצג רק שאלות שלא עניתי עליהן נכון</label>
     ${rev || '<p>עניתם נכון על כל השאלות!</p>'}

@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221103"></script>
-<script src="quiz-data.js?v=202610221103"></script>
+<script src="config.js?v=202610221131"></script>
+<script src="quiz-data.js?v=202610221131"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -189,7 +189,7 @@ function render() {
 function intro() {
   const nA = Q.filter(q => q.part === 1).length, nB = Q.length - nA;
   app.innerHTML = `
-    <div class="logo"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"></div>
+    <div class="logo" style="text-align: right"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"></div>
     <h1>מבחן התאמה – האם כדאי לי ללמוד את סדנת ההכנה בפיסיקה (91463)?</h1>
     <p>המבחן נועד לעזור לכם להחליט אם כדאי לכם ללמוד את <b>סדנת ההכנה בפיסיקה</b> לפני הקורס <b>יסודות הפיסיקה א (20113)</b> או הקורס <b>יסודות הפיסיקה (20125)</b>. המבחן אינו משפיע על לימודיכם. כדי שהתוצאה תשקף את הידע שלכם, פתרו אותו לבד, בלי עזרה ובלי לחפש תשובות.</p>
     <h2>הוראות</h2>

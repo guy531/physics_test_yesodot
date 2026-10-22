@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610220901"></script>
-<script src="quiz-data.js?v=202610220901"></script>
+<script src="config.js?v=202610220914"></script>
+<script src="quiz-data.js?v=202610220914"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -80,14 +80,16 @@
   @media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; gap: 6px; } #fmodal .card { padding: 10px 12px; } }
   /* wide screens: the formula sheet is a side panel on the right, next to the question (no overlay) */
   @media (min-width: 1100px) {
-    #fmodal { inset: 0 0 0 auto; width: 430px; padding: 0; background: transparent; align-items: stretch; overflow: hidden; }
+    #fmodal { inset: 0 0 0 auto; width: var(--pw); padding: 0; background: transparent; align-items: stretch; overflow: hidden; }
     #fmodal .card { max-width: none; height: 100vh; overflow-y: auto; border-radius: 0; border-width: 0 0 0 1px;
                     box-shadow: -4px 0 18px rgba(0,0,0,.08); padding: 14px 16px; }
     #fmodal .fgrid { grid-template-columns: 1fr; gap: 5px; }
     #fmodal .fcell { padding: 3px 10px; }
     .cambria #fmodal .fcell math[display="block"] { font-size: 1.08em; margin: 0; padding: 0.05em 0; }
     #fmodal .fcell .katex-display { margin: 0.05em 0; }
-    body.fopen { padding-right: 430px; }
+    /* the question stays centred; it moves left only as much as needed so the panel does not cover it */
+    :root { --pw: clamp(330px, calc(50vw - 400px), 430px); }
+    body.fopen .wrap { margin-left: auto; margin-right: max(calc(50% - 390px), calc(var(--pw) + 12px)); }
   }
   .modal .card { max-width: 640px; width: 100%; }
   .scores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
@@ -221,13 +223,14 @@ function question() {
     <div class="opts${long ? ' long' : ''}">${opts}</div>
     <button class="opt dunno${a === DUNNO ? ' sel' : ''}" onclick="pick(${DUNNO})">לא יודע/ת</button>
     <div class="nav">
-      <button class="btn" onclick="go(-1)" ${st.i === 0 ? 'disabled' : ''}>הקודם</button>
+      <button class="btn" onclick="go(-1)">הקודם</button>
       <button class="btn primary" onclick="go(1)" ${a === null ? 'disabled' : ''}>${st.i === Q.length - 1 ? 'סיום' : 'הבא'}</button>
     </div>`;
   math(app);
 }
 function pick(k) { st.ans[st.i] = k; render(); }
 function go(d) {
+  if (d < 0 && st.i === 0) { st.screen = 'intro'; render(); window.scrollTo(0, 0); return; }   // back to the instructions; answers are kept
   if (d > 0 && st.i === Q.length - 1) { finish(); return; }
   st.i = Math.max(0, Math.min(Q.length - 1, st.i + d)); render(); window.scrollTo(0, 0);
 }

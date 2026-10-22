@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221206"></script>
-<script src="quiz-data.js?v=202610221206"></script>
+<script src="config.js?v=202610221245"></script>
+<script src="quiz-data.js?v=202610221245"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -35,14 +35,14 @@
   .cambria math[display="block"] { font-size: 1.25em; margin: 0.45em 0; padding: 0.2em 0; }
   .cambria .opt math[display="block"] { margin: 0; }
   .cambria .katex-display math { font-size: 1.2em; }
-  .logo { text-align: right; margin: 0 0 18px; padding-bottom: 8px; border-bottom: 2px solid #253677; }   /* blue line under the logo, as in the PDF summary */
+  .logo { text-align: right; margin: 0 0 18px; padding-bottom: 8px; border-bottom: 1px solid #253677; }   /* blue line under the logo, as in the PDF summary */
   .qtop { flex-wrap: nowrap; }
   .qtop .meta { flex: 1 1 0; min-width: 0; }
   .qtop .tools { flex: 1 1 0; justify-content: flex-end; flex-wrap: nowrap; white-space: nowrap; }
-  .qlogo { height: 38px; width: auto; flex: none; }   /* small logo in the middle of the question header */
+  .qlogo { height: 27px; width: auto; flex: none; }   /* small logo in the middle of the question header */
   @media (max-width: 820px) { .qlogo { display: none; } }
   @media (max-width: 560px) { .qtop { flex-wrap: wrap; } .qtop .meta { flex: 1 1 100%; } .qtop .tools { flex: none; } }
-  .logo img { display: block; width: 240px; max-width: 70%; height: auto; }
+  .logo img { display: block; width: 168px; max-width: 70%; height: auto; }
   .fig { text-align: center; margin: 12px 0; }
   .fig img { max-width: 100%; height: auto; }
   .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -134,8 +134,8 @@
     #print { display: block; font-size: 12pt; line-height: 1.4; color: #1d1d1f; }
     #print * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
-  .ps-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #253677; padding-bottom: 8px; }
-  .ps-head img { height: 46px; }
+  .ps-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #253677; padding-bottom: 8px; }
+  .ps-head img { height: 32px; }
   .ps-head .ps-date { color: #555; font-size: .9em; text-align: left; }
   .ps-title { font-size: 1.45em; font-weight: 700; margin: 14px 0 2px; color: #253677; }
   .ps-sub { color: #555; margin: 0 0 14px; }

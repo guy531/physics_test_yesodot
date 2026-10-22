@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610220914"></script>
-<script src="quiz-data.js?v=202610220914"></script>
+<script src="config.js?v=202610220925"></script>
+<script src="quiz-data.js?v=202610220925"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -87,9 +87,8 @@
     #fmodal .fcell { padding: 3px 10px; }
     .cambria #fmodal .fcell math[display="block"] { font-size: 1.08em; margin: 0; padding: 0.05em 0; }
     #fmodal .fcell .katex-display { margin: 0.05em 0; }
-    /* the question stays centred; it moves left only as much as needed so the panel does not cover it */
+    /* the question never moves; the panel sits on top of the right margin */
     :root { --pw: clamp(330px, calc(50vw - 400px), 430px); }
-    body.fopen .wrap { margin-left: auto; margin-right: max(calc(50% - 390px), calc(var(--pw) + 12px)); }
   }
   .modal .card { max-width: 640px; width: 100%; }
   .scores { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }

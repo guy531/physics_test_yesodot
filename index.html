@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610221009"></script>
-<script src="quiz-data.js?v=202610221009"></script>
+<script src="config.js?v=202610221034"></script>
+<script src="quiz-data.js?v=202610221034"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -35,6 +35,8 @@
   .cambria math[display="block"] { font-size: 1.25em; margin: 0.45em 0; padding: 0.2em 0; }
   .cambria .opt math[display="block"] { margin: 0; }
   .cambria .katex-display math { font-size: 1.2em; }
+  .logo { text-align: center; margin: 0 0 18px; }
+  .logo img { width: 240px; max-width: 70%; height: auto; }
   .fig { text-align: center; margin: 12px 0; }
   .fig img { max-width: 100%; height: auto; }
   .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -182,6 +184,7 @@ function render() {
 function intro() {
   const nA = Q.filter(q => q.part === 1).length, nB = Q.length - nA;
   app.innerHTML = `
+    <div class="logo"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"></div>
     <h1>מבחן התאמה – האם כדאי לי ללמוד את סדנת ההכנה בפיסיקה (91463)?</h1>
     <p>המבחן נועד לעזור לכם להחליט אם כדאי לכם ללמוד את <b>סדנת ההכנה בפיסיקה</b> לפני הקורס <b>יסודות הפיסיקה א (20113)</b> או הקורס <b>יסודות הפיסיקה (20125)</b>. המבחן אינו משפיע על לימודיכם. כדי שהתוצאה תשקף את הידע שלכם, פתרו אותו לבד, בלי עזרה ובלי לחפש תשובות.</p>
     <h2>הוראות</h2>

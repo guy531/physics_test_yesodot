@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-<script src="config.js?v=202610251555"></script>
-<script src="quiz-data.js?v=202610251555"></script>
+<script src="config.js?v=202611081302"></script>
+<script src="quiz-data.js?v=202611081302"></script>
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --ink: #1f2328; --muted: #5f6670; --line: #dcdad4;
@@ -35,12 +35,10 @@
   .cambria math[display="block"] { font-size: 1.25em; margin: 0.45em 0; padding: 0.2em 0; }
   .cambria .opt math[display="block"] { margin: 0; }
   .cambria .katex-display math { font-size: 1.2em; }
-  .logo { text-align: right; margin: 0 0 18px; padding-bottom: 8px; border-bottom: 1px solid #253677; }   /* blue line under the logo, as in the PDF summary */
   .qtop { flex-wrap: nowrap; }
   .qtop .meta { flex: 1 1 0; min-width: 0; }
   .qtop .tools { flex: 1 1 0; justify-content: flex-end; flex-wrap: nowrap; white-space: nowrap; }
   @media (max-width: 560px) { .qtop { flex-wrap: wrap; } .qtop .meta { flex: 1 1 100%; } .qtop .tools { flex: none; } }
-  .logo img { display: block; width: 144px; max-width: 70%; height: auto; }
   .fig { text-align: center; margin: 12px 0; }
   .fig img { max-width: 100%; height: auto; }
   .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -135,8 +133,7 @@
     #print { display: block; font-size: 12pt; line-height: 1.4; color: #1d1d1f; }
     #print * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
-  .ps-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #253677; padding-bottom: 8px; }
-  .ps-head img { height: 28px; }
+  .ps-head { display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid #253677; padding-bottom: 8px; }
   .ps-head .ps-date { color: #555; font-size: .9em; text-align: left; }
   .ps-title { font-size: 1.45em; font-weight: 700; margin: 14px 0 2px; color: #253677; }
   .ps-sub { color: #555; margin: 0 0 14px; }
@@ -228,7 +225,6 @@ function render() {
 function intro() {
   const nA = Q.filter(q => q.part === 1).length, nB = Q.length - nA;
   app.innerHTML = `
-    <div class="logo"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"></div>
     <h1>מבחן התאמה – האם כדאי לי להירשם לסדנת ההכנה בפיסיקה?</h1>
     <p>המבחן נועד לעזור לכם להחליט אם כדאי לכם ללמוד את <b>סדנת ההכנה בפיסיקה (91463)</b> לפני הקורס <b>יסודות הפיסיקה א (20113)</b> או הקורס <b>יסודות הפיסיקה (20125)</b>. המבחן אינו משפיע על לימודיכם. כדי שהתוצאה תשקף את הידע שלכם, פתרו אותו לבד, בלי עזרה ובלי לחפש תשובות.</p>
     <h2>הוראות</h2>
@@ -351,7 +347,7 @@ function printSummary() {
   };
   const url = location.origin + location.pathname;
   document.getElementById('print').innerHTML = `
-    <div class="ps-head"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"><div class="ps-date">${date}</div></div>
+    <div class="ps-head"><div class="ps-date">${date}</div></div>
     <div class="ps-title">מבחן התאמה – סדנת הכנה בפיסיקה <bdi dir="ltr">(91463)</bdi></div>
     <p class="ps-sub">סיכום התוצאות</p>
     <div class="ps-scores">${score(1, "חלק א' – מתמטיקה")}${score(2, "חלק ב' – פיסיקה")}</div>
@@ -403,7 +399,6 @@ function results() {
       <div class="sol">${blocks(q.sol)}</div></div>`;
   }).join('');
   app.innerHTML = `
-    <div class="logo"><img src="ou-logo.svg" alt="האוניברסיטה הפתוחה"></div>
     <h1>התוצאה שלך</h1>
     <div class="scores">${card(1, "חלק א' – מתמטיקה")}${card(2, "חלק ב' – פיסיקה")}</div>
     <div class="rec">${recText(r)}</div>
